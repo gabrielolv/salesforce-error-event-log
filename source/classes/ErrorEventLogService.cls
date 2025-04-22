@@ -20,7 +20,7 @@ public without sharing class ErrorEventLogService {
 
         for (ErrorEventLogService log : logs) {
             System.debug(log);
-            publishEvent(log.source, log.operation, log.errorMessage, log.stackTrace, log.objectName, log.className, log.methodName, log.recordId, log.type);
+            publishEvent(log.source, log.operation, log.errorMessage, log.stackTrace, log.objectName, log.className, log.methodName, log.recordId, log.type, '');
         }
         if(logs[0].throwError){
             throw new MyException(logs[0].displayError);
@@ -29,6 +29,23 @@ public without sharing class ErrorEventLogService {
 
     public static void apexException(Exception ex, string objectName, string className, string methodName, string recordId) {   
         publishEvent('Apex', ex.getTypeName(), ex.getmessage(), ex.getStackTraceString(), objectName, className, methodName, recordId, 'Error');
+    }
+
+    public static void apexDatabaseError(Database.Error ex, string objectName, string className, string methodName, string recordId) {   
+        publishEvent('Apex', String.ValueOf(ex.getStatusCode()), ex.getMessage(), '', objectName, className, methodName, recordId, 'Error', '');
+    }
+
+    public static void apexExceptionAPI(Exception ex, string objectName, string className, string methodName, string recordId, Map<String,String> params, String StringParams) {   
+        String paramString = '';
+        if (Stringparams != null && Stringparams != '') {
+            paramString = Stringparams;
+        }else{
+            for (String key : params.keySet()){
+                paramString = paramString == '' ? paramString + '?' : paramString + '&';
+                paramString += key + '=' + params.get(key);
+            }
+        }    
+        publishEvent('Apex', ex.getTypeName(), ex.getMessage(), ex.getStackTraceString(), objectName, className, methodName, recordId, 'Error', paramString);
     }
 
     public static void apexDebug(string title, string message, string objectName, string className, string methodName, string recordId) {   
@@ -56,6 +73,7 @@ public without sharing class ErrorEventLogService {
         //log.OwnerId = UserInfo.getUserId();
         log.Record_ID__c = recordId;
         log.Governor_Limits__c = String.format('{0}\n{1}\n{2}\n{3}',new List<string>{QueryLimit, DMLimit,DMLStat,CPUT});
+        log.API_Parameters__c = params;
         
         Database.SaveResult result = EventBus.publish(log);
 
@@ -87,6 +105,7 @@ public without sharing class ErrorEventLogService {
             log.OwnerId = event.createdbyId;
             log.Record_ID__c = event.Record_ID__c;
             log.Governor_Limits__c = event.Governor_Limits__c;
+            log.API_Parameters__c = event.API_Parameters__c;
             logs.add(log);
         }
         try{
