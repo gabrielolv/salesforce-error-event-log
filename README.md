@@ -1,3 +1,5 @@
+The Salesforce Error Event Log is a scalable and asynchronous error logging framework designed for Salesforce environments. Leveraging Platform Events, it captures and records error and event logs, enabling efficient monitoring and debugging of Apex code. This solution facilitates real-time error tracking and supports integration with external monitoring systems, enhancing the observability of your Salesforce applications. 
+
 # Salesforce DX Project: Next Steps
 
 Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
