@@ -31,6 +31,10 @@ public without sharing class ErrorEventLogService {
         publishEvent('Apex', ex.getTypeName(), ex.getmessage(), ex.getStackTraceString(), objectName, className, methodName, recordId, 'Error');
     }
 
+    public static void javascriptException(String errorMessage, String objectName, String className, String methodName, String recordId) {   
+        publishEvent('JavaScript', '', errorMessage, '', objectName, className, methodName, recordId, 'Error', '');
+    }
+
     public static void apexDatabaseError(Database.Error ex, string objectName, string className, string methodName, string recordId) {   
         publishEvent('Apex', String.ValueOf(ex.getStatusCode()), ex.getMessage(), '', objectName, className, methodName, recordId, 'Error', '');
     }
