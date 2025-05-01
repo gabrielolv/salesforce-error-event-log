@@ -81,5 +81,44 @@ try {
         myOpportunity.Id
     );
 }
+```
 
+##JavaScript (LWC or Aura Controller)
 
+```javascript
+import javascriptException from "@salesforce/apex/ARCCJobDataController.javascriptException";
+
+try {
+    // Risky operation or API call
+} catch (error) {
+    const errorMessage = error.message || 'Unexpected JS error';
+    const method = 'loadJobDetails';
+
+    javascriptException({
+        errorMessage: errorMessage,
+        objectName: '',
+        className: 'ArccJobDetailsScreen',
+        methodName: method,
+        recordId: 'a01XXXXXXXXXXXX'
+    });
+}
+```
+And the corresponding Apex controller method:
+```apex
+@AuraEnabled
+public static void javascriptException(
+    String errorMessage,
+    String objectName,
+    String className,
+    String methodName,
+    String recordId
+){
+    ErrorEventLogService.javascriptException(
+        errorMessage,
+        objectName,
+        className,
+        methodName,
+        recordId
+    );
+}
+```
