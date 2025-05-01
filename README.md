@@ -83,7 +83,7 @@ try {
 }
 ```
 
-##JavaScript (LWC or Aura Controller)
+JavaScript (LWC or Aura Controller)
 
 ```javascript
 import javascriptException from "@salesforce/apex/ARCCJobDataController.javascriptException";
