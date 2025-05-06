@@ -1,5 +1,11 @@
 public without sharing class ErrorEventLogService {
 
+    private static final String APEX_SOURCE = 'Apex';
+    private static final String API_SOURCE = 'API';
+    private static final String JS_SOURCE = 'JavaScript';
+    private static final String ERROR_TYPE = 'Error';
+    private static final String DEBUG_TYPE = 'Debug';
+
     @InvocableVariable public String source;
     @InvocableVariable public String objectName;
     @InvocableVariable public String operation;
@@ -26,20 +32,16 @@ public without sharing class ErrorEventLogService {
             throw new MyException(logs[0].displayError);
         }
     }
-
-    public static void apexException(Exception ex, string objectName, string className, string methodName, string recordId) {   
-        publishEvent('Apex', ex.getTypeName(), ex.getmessage(), ex.getStackTraceString(), objectName, className, methodName, recordId, 'Error');
+    
+    public static void apexException(Exception ex, String objectName, String className, String methodName, String recordId) {   
+        publishEvent(APEX_SOURCE, ex.getTypeName(), ex.getMessage(), ex.getStackTraceString(), objectName, className, methodName, recordId, ERROR_TYPE, '');
     }
 
     public static void javascriptException(String errorMessage, String objectName, String className, String methodName, String recordId) {   
-        publishEvent('JavaScript', '', errorMessage, '', objectName, className, methodName, recordId, 'Error', '');
+        publishEvent(JS_SOURCE, '', errorMessage, '', objectName, className, methodName, recordId, ERROR_TYPE, '');
     }
 
-    public static void apexDatabaseError(Database.Error ex, string objectName, string className, string methodName, string recordId) {   
-        publishEvent('Apex', String.ValueOf(ex.getStatusCode()), ex.getMessage(), '', objectName, className, methodName, recordId, 'Error', '');
-    }
-
-    public static void apexExceptionAPI(Exception ex, string objectName, string className, string methodName, string recordId, Map<String,String> params, String StringParams) {   
+    public static void apexExceptionAPI(Exception ex, String objectName, String className, String methodName, String recordId, Map<String,String> params, String StringParams) {   
         String paramString = '';
         if (Stringparams != null && Stringparams != '') {
             paramString = Stringparams;
@@ -49,14 +51,18 @@ public without sharing class ErrorEventLogService {
                 paramString += key + '=' + params.get(key);
             }
         }    
-        publishEvent('Apex', ex.getTypeName(), ex.getMessage(), ex.getStackTraceString(), objectName, className, methodName, recordId, 'Error', paramString);
+        publishEvent(API_SOURCE, ex.getTypeName(), ex.getMessage(), ex.getStackTraceString(), objectName, className, methodName, recordId, ERROR_TYPE, paramString);
     }
 
-    public static void apexDebug(string title, string message, string objectName, string className, string methodName, string recordId) {   
-        publishEvent('Apex', null, title, message, objectName, className, methodName, recordId, 'Debug');
+    public static void apexDatabaseError(Database.Error ex, String objectName, String className, String methodName, String recordId) {   
+        publishEvent(APEX_SOURCE, String.ValueOf(ex.getStatusCode()), ex.getMessage(), '', objectName, className, methodName, recordId, ERROR_TYPE, '');
     }
 
-    public static void publishEvent(string source, string operation, string errorMessage, string stackTrace, string objectName, string className, string methodName, string recordId, string type) {
+    public static void apexDebug(String title, String message, String objectName, String className, String methodName, String recordId) {   
+        publishEvent(APEX_SOURCE, null, title, message, objectName, className, methodName, recordId, DEBUG_TYPE, '');
+    }
+
+    public static void publishEvent(String source, String operation, String errorMessage, String stackTrace, String objectName, String className, String methodName, String recordId, String type, String params) {
         
         //Governer Limit of executingQuery 
         String QueryLimit = '1. SOQL Queries used / SOQL Queries allowed: ' + Limits.getQueries() + '/' + Limits.getLimitQueries();
